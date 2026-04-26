@@ -43,20 +43,43 @@
 
         if (!userText) return;
 
-        // 1. Tampilkan pesan user
         addMessage(userText, 'user-msg');
         input.value = '';
 
-        // 2. Tampilkan status loading
         const loadingDiv = addMessage('Zars sedang berpikir...', 'ai-msg');
 
         try {
-            // 3. Panggil API
-            const response = await panggilZarsAI(userText);
-            loadingDiv.innerHTML = response; 
+            const jawaban = await panggilZarsAI(userText);
+            loadingDiv.innerHTML = jawaban;
         } catch (error) {
-            loadingDiv.innerText = "Maaf, Zars mengalami gangguan koneksi atau API Key salah.";
+            loadingDiv.innerText = "Waduh, koneksi ke ChatGPT gagal. Pastikan kuota API OpenAI kamu masih ada!";
             console.error(error);
+        }
+    }
+
+    async function panggilZarsAI(pesanUser) {
+        // API Key ChatGPT (Hati-hati, kunci ini sekarang bersifat publik di GitHub)
+        const API_KEY = "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"; 
+        const URL = "https://api.openai.com/v1/chat/completions";
+
+        const response = await fetch(URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: pesanUser }]
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.choices && data.choices[0].message.content) {
+            return data.choices[0].message.content;
+        } else {
+            return "Zars tidak mendapatkan jawaban. Cek saldo atau limit API OpenAI kamu.";
         }
     }
 
@@ -69,8 +92,10 @@
         chatBox.scrollTop = chatBox.scrollHeight;
         return div;
     }
+</script>
 
-    async function panggilZarsAI(pesanUser) {
+</body>
+</html>
         // Ganti API_KEY ini dengan API Key Google Gemini kamu (yang berawalan AIza...)
         const API_KEY = "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";
         
