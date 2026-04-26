@@ -40,35 +40,60 @@
     async function askZars() {
         const input = document.getElementById('userInput');
         const userText = input.value.trim();
-
         if (!userText) return;
 
+        // 1. Tampilkan pesan user
         addMessage(userText, 'user-msg');
         input.value = '';
 
+        // 2. Tampilkan status loading
         const loadingDiv = addMessage('Zars sedang berpikir...', 'ai-msg');
 
         try {
+            // 3. Panggil API Gemini
             const jawaban = await panggilZarsAI(userText);
-            loadingDiv.innerHTML = jawaban;
+            loadingDiv.innerHTML = jawaban; 
         } catch (error) {
-            loadingDiv.innerText = "Waduh, koneksi ke ChatGPT gagal. Pastikan kuota API OpenAI kamu masih ada!";
+            loadingDiv.innerText = "Zars gagal terhubung. Cek API Key atau koneksi internet kamu.";
             console.error(error);
         }
     }
 
     async function panggilZarsAI(pesanUser) {
-        // API Key ChatGPT (Hati-hati, kunci ini sekarang bersifat publik di GitHub)
-        const API_KEY = "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"; 
-        const URL = "https://api.openai.com/v1/chat/completions";
+        // API Key Gemini kamu
+        const API_KEY = "AIzaSyDdzmbDWa8DFpZ8rPXpBVvebL94ddZ9r_o"; 
+        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                contents: [{ parts: [{ text: pesanUser }] }]
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            return "Zars tidak mendapatkan jawaban. Cek kuota API kamu.";
+        }
+    }
+
+    function addMessage(text, className) {
+        const chatBox = document.getElementById('chatBox');
+        const div = document.createElement('div');
+        div.className = 'msg ' + className;
+        div.innerHTML = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return div;
+    }
+</script>
+
+</body>
+</html>
                 model: "gpt-3.5-turbo",
                 messages: [{ role: "user", content: pesanUser }]
             })
