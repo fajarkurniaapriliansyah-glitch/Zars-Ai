@@ -6,7 +6,7 @@
     <title>Zars AI - Assistant</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .chat-container { width: 400px; height: 600px; background: #1e1e1e; border-radius: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
+        .chat-container { width: 90%; max-width: 400px; height: 600px; background: #1e1e1e; border-radius: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
         .header { padding: 20px; background: #2c2c2c; border-bottom: 1px solid #333; text-align: center; font-size: 1.2rem; font-weight: bold; color: #00ffcc; }
         .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .msg { padding: 10px 15px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; max-width: 85%; word-wrap: break-word; }
@@ -14,8 +14,7 @@
         .user-msg { background: #00ffcc; color: #121212; align-self: flex-end; border-bottom-right-radius: 2px; }
         .input-area { padding: 15px; display: flex; gap: 10px; background: #2c2c2c; }
         input { flex: 1; padding: 12px; border: none; border-radius: 5px; background: #3d3d3d; color: white; outline: none; }
-        button { background: #00ffcc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #00cca3; }
+        button { background: #00ffcc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,7 +31,6 @@
 </div>
 
 <script>
-    // Fitur kirim pesan dengan tombol Enter
     document.getElementById("userInput").addEventListener("keypress", function(e) {
         if (e.key === "Enter") { askZars(); }
     });
@@ -42,25 +40,20 @@
         const userText = input.value.trim();
         if (!userText) return;
 
-        // 1. Tampilkan pesan user
         addMessage(userText, 'user-msg');
         input.value = '';
-
-        // 2. Tampilkan status loading
         const loadingDiv = addMessage('Zars sedang berpikir...', 'ai-msg');
 
         try {
-            // 3. Panggil API Gemini
             const jawaban = await panggilZarsAI(userText);
-            loadingDiv.innerHTML = jawaban; 
+            loadingDiv.innerHTML = jawaban;
         } catch (error) {
-            loadingDiv.innerText = "Zars gagal terhubung. Cek API Key atau koneksi internet kamu.";
-            console.error(error);
+            loadingDiv.innerText = "Zars gagal terhubung. Cek API Key Gemini kamu.";
         }
     }
 
     async function panggilZarsAI(pesanUser) {
-        // API Key Gemini kamu
+        // PAKAI API KEY GEMINI (AIza...)
         const API_KEY = "AIzaSyDdzmbDWa8DFpZ8rPXpBVvebL94ddZ9r_o"; 
         const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
@@ -73,11 +66,10 @@
         });
 
         const data = await response.json();
-        
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        if (data.candidates && data.candidates[0].content) {
             return data.candidates[0].content.parts[0].text;
         } else {
-            return "Zars tidak mendapatkan jawaban. Cek kuota API kamu.";
+            return "Terjadi kesalahan. Pastikan API Key kamu aktif.";
         }
     }
 
@@ -89,60 +81,6 @@
         chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
         return div;
-    }
-</script>
-
-</body>
-</html>
-                model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: pesanUser }]
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.choices && data.choices[0].message.content) {
-            return data.choices[0].message.content;
-        } else {
-            return "Zars tidak mendapatkan jawaban. Cek saldo atau limit API OpenAI kamu.";
-        }
-    }
-
-    function addMessage(text, className) {
-        const chatBox = document.getElementById('chatBox');
-        const div = document.createElement('div');
-        div.className = 'msg ' + className;
-        div.innerHTML = text;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
-        return div;
-    }
-</script>
-
-</body>
-</html>
-        // Ganti API_KEY ini dengan API Key Google Gemini kamu (yang berawalan AIza...)
-        const API_KEY = "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";
-        
-        // URL yang benar untuk Google Gemini
-        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-        const response = await fetch(URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: pesanUser }] }]
-            })
-        });
-
-        const data = await response.json();
-        
-        // Mengambil teks jawaban dari respon API Gemini
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            return "Zars tidak bisa menjawab itu sekarang.";
-        }
     }
 </script>
 
